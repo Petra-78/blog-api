@@ -1,0 +1,34 @@
+{
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prisma studio": "npx prisma studio --config ./prisma.config.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Petra-78/blog-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Petra-78/blog-api/issues"
+  },
+  "homepage": "https://github.com/Petra-78/blog-api#readme",
+  "devDependencies": {
+    "prisma": "^7.2.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "dotenv": "^17.2.3",
+    "pg": "^8.16.3"
+  }
+}
