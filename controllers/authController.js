@@ -5,7 +5,6 @@ async function postLogin(req, res) {
   console.log(req.body);
   const email = req.body.email;
   const password = req.body.password;
-  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.users.findUnique({
     where: {
@@ -31,4 +30,40 @@ async function postLogin(req, res) {
   });
 }
 
-export { postLogin };
+async function postSignup(req, res) {
+  const email = req.body.email;
+  const password = await bcrypt.hash(req.body.password, 10);
+  const username = req.body.username;
+
+  const user = await prisma.users.findUnique({
+    where: {
+      email: email,
+    },
+  });
+
+  const name = await prisma.users.findUnique({
+    where: {
+      username: username,
+    },
+  });
+
+  if (name) {
+    return res.status(400).json({ message: "username is taken" });
+  }
+
+  if (user) {
+    return res.status(400).json({ message: "email already in use" });
+  }
+
+  await prisma.users.create({
+    data: {
+      email,
+      username,
+      password,
+    },
+  });
+
+  return res.json({ message: "User created successfully" });
+}
+
+export { postLogin, postSignup };
