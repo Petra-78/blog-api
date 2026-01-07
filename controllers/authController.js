@@ -41,6 +41,44 @@ async function postLogin(req, res) {
   });
 }
 
+async function postAdminLogin(req, res) {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const user = await prisma.users.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    return res.status(401).json({ message: "Invalid email" });
+  }
+
+  if (!user.isAdmin) {
+    return res.status(403).json({ message: "Not an admin" });
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ message: "Invalid password" });
+  }
+
+  const token = jwt.sign(
+    { userId: user.id, isAdmin: user.isAdmin },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    },
+  });
+}
+
 async function postSignup(req, res) {
   const email = req.body.email;
   const password = await bcrypt.hash(req.body.password, 10);
@@ -77,4 +115,4 @@ async function postSignup(req, res) {
   return res.json({ message: "User created successfully" });
 }
 
-export { postLogin, postSignup };
+export { postLogin, postSignup, postAdminLogin };
