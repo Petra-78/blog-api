@@ -1,8 +1,8 @@
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 async function postLogin(req, res) {
-  console.log(req.body);
   const email = req.body.email;
   const password = req.body.password;
 
@@ -22,11 +22,22 @@ async function postLogin(req, res) {
     return res.status(401).json({ message: "Invalid password" });
   }
 
+  const token = jwt.sign(
+    { userId: user.id, isAdmin: user.isAdmin },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "7days",
+    }
+  );
+
   res.json({
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    isAdmin: user.isAdmin,
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    },
   });
 }
 
