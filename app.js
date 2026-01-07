@@ -8,8 +8,10 @@ app.use(cors());
 app.use(express.json());
 
 import { authRouter } from "./routes/authRouter.js";
+import { postsRouter } from "./routes/postsRouter.js";
 
 app.use("/", authRouter);
+app.use("/posts", postsRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Blog API running" });
