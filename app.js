@@ -9,9 +9,11 @@ app.use(express.json());
 
 import { authRouter } from "./routes/authRouter.js";
 import { postsRouter } from "./routes/postsRouter.js";
+import { commentsDeleteRouter } from "./routes/commentsDeleteRouter.js";
 
 app.use("/", authRouter);
 app.use("/posts", postsRouter);
+app.use("/comments", commentsDeleteRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Blog API running" });
