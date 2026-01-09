@@ -1,18 +1,23 @@
 import { prisma } from "../lib/prisma.js";
 
 export async function getComments(req, res) {
-  const postId = req.params.postId;
+  const postId = Number(req.params.postId);
 
   const comments = await prisma.comments.findMany({
     where: {
-      postId: Number(postId),
+      postId: postId,
     },
-    orderBy: { postedAt: "asc" },
+    orderBy: {
+      postedAt: "asc",
+    },
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
+      },
+    },
   });
-
-  if (!comments) {
-    res.json({ message: "Be the first to leave a comment" });
-  }
 
   res.json({ comments });
 }
