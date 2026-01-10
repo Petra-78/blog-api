@@ -23,24 +23,58 @@ export async function getComments(req, res) {
 }
 
 export async function createComment(req, res) {
-  const postId = req.params.postId;
-  const content = req.body.content;
+  const postId = Number(req.params.postId);
+  const content = req.body.content?.trim();
   const userId = req.user.userId;
 
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   if (!content) {
-    return res.json({ error: "Comment cannot be empty" });
+    return res.status(400).json({ message: "Comment cannot be empty" });
+  }
+
+  const MAX_COMMENT_LENGTH = 1000;
+  if (content.length > MAX_COMMENT_LENGTH) {
+    return res
+      .status(400)
+      .json({
+        message: `Comment cannot exceed ${MAX_COMMENT_LENGTH} characters.`,
+      });
+  }
+
+  const lastComment = await prisma.comments.findFirst({
+    where: { userId },
+    orderBy: { postedAt: "desc" },
+  });
+
+  const RATE_LIMIT_MS = 5000;
+  if (lastComment) {
+    const now = Date.now();
+    const lastTime = new Date(lastComment.postedAt).getTime();
+    if (now - lastTime < RATE_LIMIT_MS) {
+      return res
+        .status(429)
+        .json({ message: "Slow down! You are commenting too fast." });
+    }
   }
 
   const comment = await prisma.comments.create({
     data: {
       content,
-      postId: Number(postId),
-      userId: Number(userId),
+      postId,
+      userId,
       postedAt: new Date(),
+    },
+    include: {
+      user: {
+        select: { username: true },
+      },
     },
   });
 
-  res.json({ comment });
+  res.status(201).json(comment);
 }
 
 export async function deleteComment(req, res) {
