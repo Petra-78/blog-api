@@ -1,7 +1,15 @@
 import { prisma } from "../lib/prisma.js";
 
 export async function getAllComments(req, res) {
-  const allComments = await prisma.comments.findMany();
+  const allComments = await prisma.comments.findMany({
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
+      },
+    },
+  });
   res.json(allComments);
 }
 
