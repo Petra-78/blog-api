@@ -1,5 +1,10 @@
 import { prisma } from "../lib/prisma.js";
 
+export async function getAllComments(req, res) {
+  const allComments = await prisma.comments.findMany();
+  res.json(allComments);
+}
+
 export async function getComments(req, res) {
   const postId = Number(req.params.postId);
 
@@ -37,11 +42,9 @@ export async function createComment(req, res) {
 
   const MAX_COMMENT_LENGTH = 1000;
   if (content.length > MAX_COMMENT_LENGTH) {
-    return res
-      .status(400)
-      .json({
-        message: `Comment cannot exceed ${MAX_COMMENT_LENGTH} characters.`,
-      });
+    return res.status(400).json({
+      message: `Comment cannot exceed ${MAX_COMMENT_LENGTH} characters.`,
+    });
   }
 
   const lastComment = await prisma.comments.findFirst({
