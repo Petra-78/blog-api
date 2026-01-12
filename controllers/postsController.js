@@ -62,12 +62,20 @@ export async function deletePost(req, res) {
   const id = req.params.id;
 
   try {
+    const deletedComments = await prisma.comments.deleteMany({
+      where: { postId: Number(id) },
+    });
     const deletedPost = await prisma.posts.delete({
       where: { id: Number(id) },
     });
 
-    res.json({ message: "Post deleted successfully", post: deletedPost });
+    res.json({
+      message: "Post deleted successfully",
+      comments: deletedComments,
+      post: deletedPost,
+    });
   } catch (err) {
-    return res.status(404).json({ error: "Post not found" });
+    console.log(err);
+    return res.status(404).json({ message: "Post not found" });
   }
 }
